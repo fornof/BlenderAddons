@@ -11,11 +11,12 @@ bl_info = {
 import bpy
 from bpy.app.handlers import persistent
 
-s = 'SUBDIVIDE'
-c = 'COLLAPSE'
-context = bpy.context.scene
+
 
 def Toggle():
+    s = 'SUBDIVIDE'
+    c = 'COLLAPSE'
+    context = bpy.context.scene
     currentSetting = context.tool_settings.sculpt.detail_refine_method
     if currentSetting == s:
         context.tool_settings.sculpt.detail_refine_method = c
