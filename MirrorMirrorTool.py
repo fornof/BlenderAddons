@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Mirror Mirror Tool",
     "author": "Robert Fornof",
-    "version": (0, 3),
+    "version": (1, 4),
     "blender": (2, 71, 0),
     "location": "View3D > Tool_Tab> Mirror",
     "description": "Set mirror",
@@ -154,8 +154,8 @@ def register():
     bpy.utils.register_class(MirrorY)
     bpy.utils.register_class(MirrorZ)
     #Append 3DVIEW Menu
-    bpy.utils.register_class(MirrorMenu)
-    bpy.types.VIEW3D_MT_object.append(VIEW3D_MirrorMenu)
+    #bpy.utils.register_class(MirrorMenu)
+    #bpy.types.VIEW3D_MT_object.append(VIEW3D_MirrorMenu)
     
     # Append 3DVIEW Tab
     bpy.utils.register_class(MirrorTab)
@@ -176,17 +176,17 @@ def register():
 
 def unregister():
     
-    bpy.utils.unregister_class(MirrorMenu)
+    #bpy.utils.unregister_class(MirrorMenu)
     bpy.utils.unregister_class(MirrorTab)
-    bpy.types.VIEW3D_MT_object.remove(VIEW3D_MirrorMenu)
+    #bpy.types.VIEW3D_MT_object.remove(VIEW3D_MirrorMenu)
         
     #Operators
-    bpy.utils.register_class(MirrorX)
-    bpy.utils.register_class(MirrorY)
-    bpy.utils.register_class(MirrorZ)
+    bpy.utils.unregister_class(MirrorX)
+    bpy.utils.unregister_class(MirrorY)
+    bpy.utils.unregister_class(MirrorZ)
             
-    bpy.app.handlers.scene_update_post.remove(HandleScene)
-    bpy.types.VIEW3D_MT_object.remove(VIEW3D_MirrorMenu)
+   # bpy.app.handlers.scene_update_post.remove(HandleScene)
+    #bpy.types.VIEW3D_MT_object.remove(VIEW3D_MirrorMenu)
     
     # Keymapping
     # handle the keymap
