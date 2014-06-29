@@ -2,10 +2,10 @@ bl_info = {
     "name": "Mirror Mirror Tool",
     "author": "Robert Fornof",
     "version": (0, 3),
-    "blender": (2, 70, 0),
+    "blender": (2, 71, 0),
     "location": "View3D > Tool_Tab> Mirror",
     "description": "Set mirror",
-    "warning": "[note]: Add a mirror on the x, y , or z axis using : ALT+SHIFT+X , ALT+SHIFT+Y, ALT+SHIFT+Z in object mode",
+    "warning": "",
     "wiki_url": "",
     "category": "Object"}
 
@@ -122,6 +122,7 @@ class MirrorMenu(bpy.types.Menu):
         self.layout.operator(MirrorTool.bl_idname,icon = "ZOOMIN")
        
 class MirrorTab(bpy.types.Panel):
+    "[note]: Add a mirror on the x, y , or z axis using : ALT+SHIFT+X , ALT+SHIFT+Y, ALT+SHIFT+Z in object mode"
     bl_label = "Mirror"
     bl_idname = "Mirror_Mirror_Tool"
     bl_space_type = "VIEW_3D"
@@ -196,3 +197,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
