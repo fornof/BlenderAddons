@@ -11,3 +11,6 @@ this is where I put all my blender tools. Right click links to save the .py
 
 
 [MirrorMirrorTool.py]: https://github.com/fornof/BlenderAddons/raw/master/MirrorMirrorTool.py
+
+> Mirror, X , y 
+
