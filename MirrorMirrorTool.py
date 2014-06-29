@@ -17,12 +17,14 @@ from bpy.app.handlers import persistent
 
 # Do the Basic Union, Difference and Intersection Operations
 def Operation(context,_operation):
-    #select 2 context object
+        ''' select the object, then select what you want it's mirror object to be '''
+        #select 2 context object
     
         try:
             # select objects
-            modifier_ob = bpy.context.active_object         # last ob selected
+     
             if(len(bpy.context.selected_objects)) == 1 : # one is selected , add mirror mod immediately to that object#
+                modifier_ob = bpy.context.active_object         
                 print("one is selected")
                 mirror_mod = modifier_ob.modifiers.new("mirror_mirror","MIRROR")
           
@@ -31,12 +33,18 @@ def Operation(context,_operation):
            #     mirror_ob.select = False
             #    modifier_ob = bpy.context.selected_objects[0]
             else:
-                modifier_ob.select = False # pop modifier_ob from sel_stack
+                #mirror_ob
+                mirror_ob = bpy.context.active_object         # last ob selected
+                mirror_ob.select = False # pop modifier_ob from sel_stack
                 print("popped")
-                mirror_ob = bpy.context.selected_objects[0]
-                print(mirror_ob)
-                mirror_ob.select = 0
-                modifier_ob.select=1
+                
+                #modifier_ob
+                modifier_ob = bpy.context.selected_objects[0]
+                print("Modifier object:" +str(modifier_ob.name))
+                
+
+      
+                #modifier_ob.select=1
                 
                 print("mirror_ob",mirror_ob)
                 print("modifier_ob",modifier_ob)
@@ -60,6 +68,15 @@ def Operation(context,_operation):
                 mirror_mod.use_x = False
                 mirror_mod.use_y = False
                 mirror_mod.use_z = True
+            
+                #selection at the end -add back the deselected mirror modifier object
+            mirror_ob.select= 1
+            modifier_ob.select=1
+            bpy.context.scene.objects.active = modifier_ob
+            print("Selected" + str(modifier_ob)) # modifier ob is the active ob
+                #mirror_ob.select = 0
+            #one = bpy.context.selected_objects[0]
+            #bpy.data.objects[one.name].select = 1
         except: 
                 print("please select exactly two objects, the last one gets the modifier unless its not a mesh")
            
@@ -197,4 +214,5 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
 
