@@ -12,8 +12,18 @@ import bpy
 from bpy.app.handlers import persistent
 
 
-
-def Toggle():
+def Press(self,context):
+    c = 'COLLAPSE'
+    context.tool_settings.sculpt.detail_refine_method = c
+    print("Pressed")
+    
+def Release(self,context):
+    s = 'SUBDIVIDE'
+    c = 'COLLAPSE'
+    context.tool_settings.sculpt.detail_refine_method = s
+    print("Released")
+   
+def Toggle(self,context):
     s = 'SUBDIVIDE'
     c = 'COLLAPSE'
     context = bpy.context.scene
@@ -28,9 +38,9 @@ def Toggle():
         context.tool_settings.sculpt.detail_refine_method = s #default
 
 
-class TopoShortcut(bpy.types.Operator):
+class TopoShortcutOn(bpy.types.Operator):
     """This Operator Add a Object to Another with Boolean Operations"""
-    bl_idname = "object.subdiv"
+    bl_idname = "object.collapseon"
     bl_label = "Topo Subdiv Toggle"
 
     @classmethod
@@ -39,8 +49,23 @@ class TopoShortcut(bpy.types.Operator):
     
     def execute(self, context):
         print("Toggled")
-        Toggle()
-        print("Toggled")
+        Release(self,context)
+        
+        return {'FINISHED'}
+
+class TopoShortcutOff(bpy.types.Operator):
+    """This Operator Add a Object to Another with Boolean Operations"""
+    bl_idname = "object.collapseoff"
+    bl_label = "Topo Subdiv Toggle"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        print("off")
+        Press(self,context)
+        
         return {'FINISHED'}
     
     
@@ -53,16 +78,17 @@ addon_keymaps = []
 
 def register():
 
-    bpy.utils.register_class(TopoShortcut)
- 
+    bpy.utils.register_class(TopoShortcutOff)
+    bpy.utils.register_class(TopoShortcutOn)
     km = bpy.context.window_manager.keyconfigs.active.keymaps['Sculpt']
-    kmi = km.keymap_items.new(TopoShortcut.bl_idname, 'SPACE', 'PRESS', ctrl = True)
-
+    kmi = km.keymap_items.new(TopoShortcutOff.bl_idname, 'Q', 'PRESS', ctrl = False)
+    kmi = km.keymap_items.new(TopoShortcutOn.bl_idname, 'Q', 'RELEASE', ctrl = False)
+    
 
 def unregister():
     
-    bpy.utils.unregister_class(TopoShortcut)
-
+    bpy.utils.unregister_class(TopoShortcutOff)
+    bpy.utils.unregister_class(TopoShortcutOn)
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)
     addon_keymaps.clear()
