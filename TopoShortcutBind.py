@@ -4,7 +4,7 @@ bl_info = {
     "version": (0, 1),
     "blender": (2, 70, 0),
     "location": "Check the shortcuts for dynamic topology ",
-    "description": "CTRL +SPACE toggles subdiv edges and collapse edges",
+    "description": "Q toggles subdiv edges and collapse edges",
     "warning": "",
     "wiki_url": "",
     "category": "Object"}
