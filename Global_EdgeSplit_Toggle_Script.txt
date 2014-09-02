@@ -1,0 +1,29 @@
+# select your objects, hit ALT P on this script
+
+
+import bpy
+# SET WHETHER TO ENABLE OR DISABLE EDGE SPLIT 
+is_enabled = 0
+
+
+C = bpy.context
+D = bpy.data 
+
+ob_list = C.selected_objects 
+print(ob_list)
+key = 0
+while(len(ob_list)):
+    ob_check = ob_list.pop()
+    if ob_check.type == 'MESH'  or \
+    ob_check.type == 'CURVE' or \
+    ob_check.type == 'SURFACE':
+    #check if mesh 
+    # check if has modifiers 
+        print(ob_check)
+    
+        mod = ob_check.modifiers.find('EdgeSplit')
+        if( mod > -1):
+            ob_check.modifiers[mod].show_in_editmode = is_enabled
+            ob_check.modifiers[mod].show_on_cage = is_enabled
+            ob_check.modifiers[mod].show_render=is_enabled
+            ob_check.modifiers[mod].show_viewport=is_enabled
