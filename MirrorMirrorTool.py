@@ -35,7 +35,7 @@ def Operation(context,_operation):
             else:
                 #mirror_ob
                 mirror_ob = bpy.context.active_object         # last ob selected
-                mirror_ob.select = False # pop modifier_ob from sel_stack
+                mirror_ob.select_set(False) # pop modifier_ob from sel_stack
                 print("popped")
                 
                 #modifier_ob
@@ -70,14 +70,16 @@ def Operation(context,_operation):
                 mirror_mod.use_z = True
             
                 #selection at the end -add back the deselected mirror modifier object
-            mirror_ob.select= 1
-            modifier_ob.select=1
-            bpy.context.scene.objects.active = modifier_ob
+            mirror_ob.select_set(True)
+            modifier_ob.select_set(True)
+            ##bpy.context.scene.objects.active = modifier_ob
+            bpy.context.view_layer.objects.active = modifier_ob
             print("Selected" + str(modifier_ob)) # modifier ob is the active ob
                 #mirror_ob.select = 0
             #one = bpy.context.selected_objects[0]
             #bpy.data.objects[one.name].select = 1
-        except: 
+        except Exception as e:
+                print("error!" + str(e)) 
                 print("please select exactly two objects, the last one gets the modifier unless its not a mesh")
            
 #------------------- OPERATOR CLASSES ------------------------------                
@@ -130,7 +132,7 @@ class MirrorZ(bpy.types.Operator):
 #------------------- MENU CLASSES ------------------------------  
 
 class MirrorMenu(bpy.types.Menu):
-    bl_label = "Mirror_Mirror_Tool"
+    bl_label = "Mirror_Mirror_Tool_MT_"
     bl_idname = "OBJECT_MT_mirror"
 
     def draw(self, context):
@@ -139,22 +141,22 @@ class MirrorMenu(bpy.types.Menu):
         self.layout.operator(MirrorTool.bl_idname,icon = "ZOOMIN")
        
 class MirrorTab(bpy.types.Panel):
-    "[note]: Add a mirror on the x, y , or z axis using : ALT+SHIFT+X , ALT+SHIFT+Y, ALT+SHIFT+Z in object mode"
+    #"[note]: Add a mirror on the x, y , or z axis using : ALT+SHIFT+X , ALT+SHIFT+Y, ALT+SHIFT+Z in object mode"
     bl_label = "Mirror"
-    bl_idname = "Mirror_Mirror_Tool"
+    bl_idname = "Mirror_Mirror_Tool_PT_"
     bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
+    bl_region_type = "UI"
     bl_category = "Mirror"
     bl_context = "objectmode"
     
     def draw(self,context):
-        self.layout.label("Mirror Axis:",icon = "MODIFIER")    
-        self.layout.operator(MirrorX.bl_idname ,icon = "ZOOMIN")
-        self.layout.operator(MirrorY.bl_idname ,icon = "ZOOMIN")
-        self.layout.operator(MirrorZ.bl_idname ,icon = "ZOOMIN")
-        #self.layout.operator(MirrorX.bl_idname ,icon = "ZOOMOUT")
-      
-        self.layout.separator()  
+        layout = self.layout
+        box = layout.box()
+        box.label(text="Mirror Axis:",icon = "MODIFIER")    
+        box.operator(MirrorX.bl_idname ,icon = "ZOOM_IN")
+        box.operator(MirrorY.bl_idname ,icon = "ZOOM_IN")
+        box.operator(MirrorZ.bl_idname ,icon = "ZOOM_IN")
+        box.separator()  
     #---------- Tree Viewer--------------
 def VIEW3D_MirrorMenu(self, context):
     self.layout.menu(MirrorMenu.bl_idname)
@@ -213,6 +215,8 @@ def unregister():
     
 
 if __name__ == "__main__":
+    try:
+        unregister()
+    except:
+        pass
     register()
-
-
