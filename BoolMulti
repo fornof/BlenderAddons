@@ -1,0 +1,241 @@
+bl_info = {
+    "name": "Bool Mod Apply Tool",
+    "author": "Robert Fornof",
+    "version": (1, 4),
+    "blender": (2, 8, 0),
+    "location": "View3D > Tool_Tab> BoolMod",
+    "description": "Set boolean",
+    "warning": "",
+    "wiki_url": "",
+    "category": "Object"}
+from bpy.props import (StringProperty,
+                       BoolProperty,
+                       IntProperty,
+                       FloatProperty,
+                       FloatVectorProperty,
+                       EnumProperty,
+                       PointerProperty,
+                       )
+from bpy.types import (Panel,
+                       Operator,
+                       AddonPreferences,
+                       PropertyGroup,
+                       )
+import bpy
+from bpy.app.handlers import persistent
+
+
+
+#------------------- FUNCTIONS------------------------------
+
+
+
+# Do the Basic Union, Difference and Intersection Operations
+def Operation(context,_operation):
+        ''' select the object, then select what you want it's mirror object to be '''
+        #select N context objects more than 1
+    
+        #try:
+            # select objects
+        if(len(bpy.context.selected_objects)) < 2 : 
+            return 
+            # one is selected , add mirror mod immediately to that object#
+#                modifier_ob = bpy.context.active_object         
+#                print("one is selected")
+#                boolean_mod = modifier_ob.modifiers.new("boolean_once","BOOLEAN")
+      
+        #   if modifier_ob.type !='MESH' and modifier_ob.type !="CURVE":
+      #      boolean_ob = modifier_ob # set to boolean_ob , hope the other one is a mesh
+       #     boolean_ob.select = False
+        #    modifier_ob = bpy.context.selected_objects[0]
+        else:
+            selected = bpy.context.selected_objects
+            for i in range(len(selected)-1):
+                
+                boolean_ob = selected[i]#bpy.context.active_object         # last ob selected
+                boolean_ob.select_set(False) # pop modifier_ob from sel_stack
+               
+                
+                #modifier_ob
+                modifier_ob = selected[i+1]
+                print("Modifier object:" +str(modifier_ob.name))
+                
+
+      
+                #modifier_ob.select=1
+                
+                print("boolean_ob",boolean_ob)
+                print("modifier_ob",modifier_ob)
+           
+            # put boolean modifier on modifier_ob 
+                modifier_name = "boolean"
+                boolean_mod = modifier_ob.modifiers.new(modifier_name,"BOOLEAN")
+                
+            # set boolean object to boolean_ob
+                boolean_mod.object = boolean_ob
+                boolean_mod.operation = _operation
+                if bpy.context.scene.isapply:
+                    bpy.context.view_layer.objects.active  = modifier_ob
+                    bpy.ops.object.modifier_apply(modifier=modifier_name)
+                    bpy.ops.object.delete({"selected_objects": [boolean_ob]})
+                else:
+                    boolean_ob.display_type = 'WIRE'  
+                    
+      
+        #except Exception as e:
+        #        print("error!" + str(e)) 
+        #        print("please select exactly two objects, the last one gets the modifier unless its not a mesh")
+           
+#------------------- OPERATOR CLASSES ------------------------------                
+# Mirror Tool                 
+
+
+
+class Union(bpy.types.Operator):
+    """This adds a Union to the selected object"""
+    bl_idname = "object.union"
+    bl_label = "UNION"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        Operation(context,"UNION")
+        return {'FINISHED'}
+    
+    
+class Intersect(bpy.types.Operator):
+    """This  adds a Intersect modifier"""
+    bl_idname = "object.intersect"
+    bl_label = "INTERSECT"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        Operation(context,"INTERSECT")
+        return {'FINISHED'}
+
+class Difference(bpy.types.Operator):
+    """This  add a difference boolean modifier"""
+    bl_idname = "object.difference"
+    bl_label = "DIFFERENCE"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+    
+    def execute(self, context):
+        Operation(context,"DIFFERENCE")
+        return {'FINISHED'}
+
+
+
+#------------------- MENU CLASSES ------------------------------  
+
+class BooleanMenu(bpy.types.Menu):
+    bl_label = "Mirror_Mirror_Tool_MT_"
+    bl_idname = "OBJECT_MT_mirror"
+
+    def draw(self, context):
+        layout = self.layout
+
+        self.layout.operator(MirrorTool.bl_idname,icon = "ZOOMIN")
+       
+class BooleanTab(bpy.types.Panel):
+    #"[note]: Add a mirror on the x, y , or z axis using : ALT+SHIFT+X , ALT+SHIFT+Y, ALT+SHIFT+Z in object mode"
+    bl_label = "Mirror"
+    bl_idname = "Mirror_Mirror_Tool_PT_"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "Mirror"
+    bl_context = "objectmode"
+    
+    def draw(self,context):
+        layout = self.layout
+        box = layout.box()
+        box.label(text="Boolean on 2+ items:",icon = "MODIFIER")    
+        box.operator(Union.bl_idname ,icon = "ZOOM_IN")
+        box.operator(Intersect.bl_idname ,icon = "ZOOM_IN")
+        box.operator(Difference.bl_idname ,icon = "ZOOM_IN")
+        box.separator() 
+        scene = bpy.context.scene
+        mytool = scene.isapply
+        
+        # display the properties
+        box.label(text=" Additional Settings",icon = "MODIFIER")    
+        box.prop(scene, "isapply", text="Apply Modifier")
+     
+
+        
+         
+    #---------- Tree Viewer--------------
+def VIEW3D_BooleanMenu(self, context):
+    self.layout.menu(BooleanMenu.bl_idname)
+    
+#------------------- REGISTER ------------------------------      
+addon_keymaps = []
+
+def register():
+
+    
+    # Operators
+    bpy.types.Scene.isapply = bpy.props.BoolProperty(
+        name="Apply Modifier",
+        description="Apply modifier on selected",
+        default = True)
+
+
+    bpy.utils.register_class(Union)
+    bpy.utils.register_class(Intersect)
+    bpy.utils.register_class(Difference)
+    #Append 3DVIEW Menu
+    #bpy.utils.register_class(BooleanMenu)
+    #bpy.types.VIEW3D_MT_object.append(VIEW3D_BooleanMenu)
+    
+    # Append 3DVIEW Tab
+    bpy.utils.register_class(BooleanTab)
+    
+    # handle the keymap
+    wm = bpy.context.window_manager
+    km = wm.keyconfigs.addon.keymaps.new(name='Object Mode', space_type='EMPTY')
+    kmi = km.keymap_items.new(Union.bl_idname, 'U', 'PRESS', alt=True, shift = True)
+    addon_keymaps.append((km, kmi))
+
+    km = wm.keyconfigs.addon.keymaps.new(name='Object Mode', space_type='EMPTY')
+    kmi = km.keymap_items.new(Intersect.bl_idname, 'I', 'PRESS', alt=True, shift = True)
+    addon_keymaps.append((km, kmi))
+
+    km = wm.keyconfigs.addon.keymaps.new(name='Object Mode', space_type='EMPTY')
+    kmi = km.keymap_items.new(Difference.bl_idname, 'D', 'PRESS', alt=True, shift = True)
+    addon_keymaps.append((km, kmi))
+
+def unregister():
+    
+    #bpy.utils.unregister_class(BooleanMenu)
+    bpy.utils.unregister_class(BooleanTab)
+    #bpy.types.VIEW3D_MT_object.remove(VIEW3D_BooleanMenu)
+        
+    #Operators
+    bpy.utils.unregister_class(Union)
+    bpy.utils.unregister_class(Intersect)
+    bpy.utils.unregister_class(Difference)
+    del bpy.types.Scene.isapply
+   # bpy.app.handlers.scene_update_post.remove(HandleScene)
+    #bpy.types.VIEW3D_MT_object.remove(VIEW3D_BooleanMenu)
+    
+    # Keymapping
+    # handle the keymap
+    for km, kmi in addon_keymaps:
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
+    
+
+if __name__ == "__main__":
+    try:
+        unregister()
+    except:
+        pass
+    register()
