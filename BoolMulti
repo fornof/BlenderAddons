@@ -29,7 +29,7 @@ from bpy.app.handlers import persistent
 #------------------- FUNCTIONS------------------------------
 
 
-
+is28 = False # set this to true if you want to use in 2.8+
 # Do the Basic Union, Difference and Intersection Operations
 def Operation(context,_operation):
         ''' select the object, then select what you want it's mirror object to be '''
@@ -53,8 +53,10 @@ def Operation(context,_operation):
             for i in range(len(selected)-1):
                 
                 boolean_ob = selected[i]#bpy.context.active_object         # last ob selected
-                boolean_ob.select_set(False) # pop modifier_ob from sel_stack
-               
+                if is28:
+                    boolean_ob.select_set(False) # pop modifier_ob from sel_stack
+                else:
+                    selected[0].select = False
                 
                 #modifier_ob
                 modifier_ob = selected[i+1]
@@ -79,7 +81,10 @@ def Operation(context,_operation):
                     bpy.ops.object.modifier_apply(modifier=modifier_name)
                     bpy.ops.object.delete({"selected_objects": [boolean_ob]})
                 else:
-                    boolean_ob.display_type = 'WIRE'  
+                    if is28:
+                        boolean_ob.display_type = 'WIRE'  
+                    else:
+                        selected[0].draw_type = 'WIRE'
                     
       
         #except Exception as e:
